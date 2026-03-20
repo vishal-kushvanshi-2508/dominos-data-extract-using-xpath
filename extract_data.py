@@ -1,31 +1,47 @@
 
-import os
 
 from lxml import html
+import requests
 
 
-def read_html_content(file_name):
-    current_working_dir = os.getcwd()
-    file_path = f"{current_working_dir}/{file_name}"
-    with open(file_path, "r", encoding='utf-8') as f :
-        html_content = f.read()
-    return html_content
+# get html content using url
 
-def extract_data_from_html(html_content):
-    dominos_list = []
+def read_html_content_using_url(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
+
+    # 1. Save original HTML (IMPORTANT)
+    with open("dominos_city_content.html", "w", encoding="utf-8") as f:
+        f.write(response.text)
+
+    return response.text
+
+import re
+import json
+
+def extract_data_for_city(html_content):
+    # Implementation for extracting data for a specific city
+    city_data_list = []
     tree = html.fromstring(html_content)
-    dominos_data = tree.xpath("//section[@id='content']//div[@class = 'panel panel-default custom-panel']")
-    for data in dominos_data:
-        dict_data= {}
-        dict_data["brand_name"] = data.xpath(".//h2[@class='media-heading city-main-title fontsize0']")[0].text.strip()
-        dict_data["login_page_link"] = data.xpath(
-            "string(.//div[@class='col-md-4 col-sm-4 col-xs-4 text-center call-now']//a[text()= ' View Menu ']/@href)")
-        dict_data["address"] = data.xpath(".//p[@class='grey-text mb-0']")[0].text.strip()
-        dict_data["region"] = data.xpath(".//p[@class='city-main-sub-title']")[0].text.strip()
-        dict_data["delivery_time"] = data.xpath(".//p[@class='red-text mb-0']")[0].text.strip().replace(" delivery", "")
-        dict_data["cost"] = data.xpath(".//span[@class='col-xs-9 col-md-9 pl0']")[0].text.strip()
-        dict_data["open_timing"] = data.xpath(".//div[@class='col-xs-9 col-md-9 pl0 search-grid-right-text']")[0].text.strip()
-        dict_data["good_for"] = data.xpath(".//span[@class='col-xs-9 col-md-9 nowrap  pl0']//p[@class='mb-0']")[0].text.strip()
-        dict_data["phone_no"] = data.xpath(".//p[@class='fontsize2 bold zred']")[0].text.strip()
-        dominos_list.append(dict_data)
-    return dominos_list
+
+    front_url_list = tree.xpath("//ul[@class='citylist-ul']//li")
+
+    base_url = "https://www.dominos.co.in"
+    for data in front_url_list:
+        city_name = data.xpath(".//a/text()")[0]
+        clean_city_name = re.sub(r"\(\d+\)", "", city_name).strip()
+        city_url = base_url + data.xpath(".//a/@href")[0]
+        city_data_list.append(
+            {
+                "city_name" : clean_city_name,
+                "city_url" : city_url
+            }
+        )
+    print("Total city_data_list:", len(city_data_list))
+    # with open("city_name_url.json", "w", encoding="utf-8") as f:
+    #     json.dump(city_data_list, f, indent=4)
+    
+    return city_data_list
+

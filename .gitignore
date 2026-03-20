@@ -1,0 +1,45 @@
+# ----------------------
+# Python cache
+# ----------------------
+__pycache__/
+*.pyc
+*.pyo
+
+# ----------------------
+# Virtual environment
+# ----------------------
+venv/
+env/
+
+# ----------------------
+# PyCharm files
+# ----------------------
+.idea/
+*.iml
+
+# ----------------------
+# Logs
+# ----------------------
+*.log
+
+# ----------------------
+# OS files
+# ----------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------
+# Environment variables
+# ----------------------
+.env
+
+# ----------------------
+# Scraping data
+# ----------------------
+# *.html
+# *.json
+
+# Ignore specific file
+#burge_King.html
+Domino's Pizza Restaurants in Mumbai _ Nearby Pizza Shops in Mumbai – Domino’s India.html
+city_html_files/
